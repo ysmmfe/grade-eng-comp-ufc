@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grade Interativa — Eng. de Computação UFC</title>
+  <meta name="description" content="Grade curricular interativa do curso de Engenharia de Computação da UFC Fortaleza (PPC 2022/2023). Acompanhe seu progresso, veja pré-requisitos e planeje seus semestres.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+  <!-- Painel de progresso -->
+  <header id="header">
+    <h1>Grade Interativa — Eng. de Computação UFC</h1>
+    <p class="subtitulo">PPC 2022/2023 · Centro de Tecnologia · Campus do Pici</p>
+    <div id="info-container">
+      <div class="info-box">
+        <span class="info-label">CH Concluída</span>
+        <span class="info-valor" id="ch-concluida">0 h</span>
+      </div>
+      <div class="info-box">
+        <span class="info-label">CH Total Obrigatórias</span>
+        <span class="info-valor" id="ch-total">0 h</span>
+      </div>
+      <div class="info-box">
+        <span class="info-label">Progresso</span>
+        <span class="info-valor" id="progresso">0 %</span>
+      </div>
+    </div>
+    <div id="controles">
+      <button id="btn-limpar" title="Limpar todo o progresso">Limpar Progresso</button>
+    </div>
+    <div id="legenda">
+      <span class="leg-item"><span class="leg-cor leg-concluida"></span> Concluída</span>
+      <span class="leg-item"><span class="leg-cor leg-prereq"></span> Pré-requisito</span>
+      <span class="leg-item"><span class="leg-cor leg-dep"></span> Dependente</span>
+      <span class="leg-item"><span class="leg-cor leg-liberada"></span> Liberada</span>
+      <span class="leg-item"><span class="leg-cor leg-optativa"></span> Optativa</span>
+    </div>
+  </header>
+
+  <!-- Grid principal -->
+  <div id="grade-container"></div>
+
+  <!-- Painel de atividades obrigatórias transversais -->
+  <div id="atividades-container">
+    <h2>Atividades Obrigatórias</h2>
+    <p class="ativ-subtitulo">Cumpridas ao longo do curso, sem semestre fixo</p>
+    <div id="atividades-cards"></div>
+  </div>
+
+  <!-- Modal de seleção de optativa -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal">
+      <h2>Escolher Optativa</h2>
+      <input type="text" id="modal-busca" placeholder="Buscar disciplina…" autocomplete="off">
+      <ul id="modal-lista"></ul>
+      <button id="modal-fechar">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Modal de confirmação para limpar progresso -->
+  <div id="confirmar-overlay" class="hidden">
+    <div id="confirmar-modal">
+      <h2>Limpar Progresso</h2>
+      <p>Tem certeza que deseja limpar todo o seu progresso? Esta ação não pode ser desfeita.</p>
+      <div class="confirmar-botoes">
+        <button id="confirmar-sim">Sim, limpar</button>
+        <button id="confirmar-nao">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Dados extraídos do PPC 2022/2023 · Engenharia de Computação · UFC Fortaleza</p>
+  </footer>
+
+  <script src="dados.js"></script>
+  <script src="grade.js"></script>
+</body>
+</html>

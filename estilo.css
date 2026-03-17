@@ -1,0 +1,476 @@
+/* ===========================================================
+   Grade Interativa — Eng. de Computação UFC
+   =========================================================== */
+
+/* ---------- Reset & Base ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background: #f0ede6;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Header ---------- */
+#header {
+  text-align: center;
+  padding: 24px 16px 12px;
+}
+#header h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.subtitulo {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 4px;
+}
+
+#info-container {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin: 16px auto 10px;
+  padding: 12px 20px;
+  max-width: 600px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+.info-box { text-align: center; }
+.info-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.info-valor {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2a6b2a;
+  margin-top: 2px;
+}
+
+#controles {
+  margin: 10px 0 6px;
+}
+#btn-limpar {
+  padding: 6px 16px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid #c0392b;
+  background: #fff;
+  color: #c0392b;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+#btn-limpar:hover {
+  background: #c0392b;
+  color: #fff;
+}
+
+/* ---------- Legenda ---------- */
+#legenda {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 0.72rem;
+  color: #666;
+}
+.leg-item { display: flex; align-items: center; gap: 4px; }
+.leg-cor {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid #aaa;
+}
+.leg-concluida  { background: #b1fca4; }
+.leg-prereq     { background: #ffdddd; border-color: #e74c3c; }
+.leg-dep        { background: #ddffdd; border-color: #27ae60; }
+.leg-liberada   { background: #e7f3ff; border-color: #3498db; }
+.leg-optativa   { background: #fff3e0; border-color: #e67e22; }
+
+/* ---------- Grid de Semestres ---------- */
+#grade-container {
+  display: flex;
+  gap: 6px;
+  padding: 16px 10px 40px;
+  overflow-x: auto;
+  min-height: calc(100vh - 260px);
+}
+
+.periodo-coluna {
+  min-width: 138px;
+  flex: 1;
+}
+
+.periodo-header {
+  text-align: center;
+  padding: 8px 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid #999;
+  border-radius: 5px;
+  margin-bottom: 6px;
+  background: #e7ede6;
+  cursor: default;
+  transition: background 0.3s;
+  user-select: none;
+}
+.periodo-header.completo {
+  background: #fcfab0;
+}
+
+/* ---------- Cards de Disciplina ---------- */
+.disciplina {
+  position: relative;
+  text-align: center;
+  padding: 10px 6px;
+  margin-bottom: 6px;
+  border: 1px solid #333;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.25s, border-color 0.25s, transform 0.15s, box-shadow 0.25s;
+  background: #fff;
+}
+.disciplina:hover {
+  transform: scale(1.03);
+}
+
+.disc-nome {
+  display: block;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  font-weight: 600;
+}
+.disc-ch {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.68rem;
+  color: #666;
+  font-weight: 400;
+}
+
+/* --- Estados visuais --- */
+
+/* Concluída */
+.disciplina.concluida {
+  background: #b1fca4;
+}
+.disciplina.concluida:hover {
+  background: #77ef85;
+  border-color: #003305;
+}
+
+/* Hover em incompleta */
+.disciplina:not(.concluida):hover {
+  background: #ffeded;
+  border-color: #870404;
+  color: #870404;
+}
+
+/* Liberada (prereqs atendidos) */
+.disciplina.liberada {
+  border-color: #3498db;
+  border-width: 2px;
+  background: #e7f3ff;
+}
+
+/* Highlight de pré-requisito ao hover */
+.disciplina.highlight-prereq {
+  background: #ffdddd !important;
+  border-color: #e74c3c !important;
+  box-shadow: 0 0 6px rgba(231, 76, 60, 0.4);
+}
+
+/* Highlight de dependente ao hover */
+.disciplina.highlight-dep {
+  background: #ddffdd !important;
+  border-color: #27ae60 !important;
+  box-shadow: 0 0 6px rgba(39, 174, 96, 0.4);
+}
+
+/* --- Card de optativa --- */
+.disciplina.optativa-slot {
+  border-style: dashed;
+  border-color: #e67e22;
+  background: #fff3e0;
+}
+.disciplina.optativa-slot:hover {
+  background: #ffe0b2;
+  border-color: #d35400;
+  color: #333;
+}
+.disciplina.optativa-slot.concluida {
+  border-style: solid;
+  border-color: #333;
+  background: #b1fca4;
+}
+.disciplina.optativa-slot .disc-nome {
+  font-style: italic;
+}
+.disciplina.optativa-slot.preenchida .disc-nome {
+  font-style: normal;
+}
+.optativa-trocar {
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  font-size: 0.6rem;
+  color: #e67e22;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 0;
+}
+.optativa-trocar:hover { color: #c0392b; }
+
+/* ---------- Modal de Optativa ---------- */
+#modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+#modal-overlay.hidden { display: none; }
+
+#modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 420px;
+  max-width: 92vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+#modal h2 {
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+#modal-busca {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+#modal-busca:focus { outline: none; border-color: #3498db; }
+
+#modal-lista {
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+  max-height: 50vh;
+}
+#modal-lista li {
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+#modal-lista li:hover {
+  background: #e7f3ff;
+}
+#modal-lista li .opt-ch {
+  float: right;
+  color: #888;
+  font-size: 0.72rem;
+}
+#modal-lista li.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+#modal-fechar {
+  margin-top: 12px;
+  padding: 8px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f5f5f5;
+  transition: background 0.2s;
+}
+#modal-fechar:hover { background: #e0e0e0; }
+
+/* ---------- Modal de Confirmação ---------- */
+#confirmar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+#confirmar-overlay.hidden { display: none; }
+
+#confirmar-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px 32px;
+  width: 380px;
+  max-width: 90vw;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+#confirmar-modal h2 {
+  font-size: 1.05rem;
+  margin-bottom: 12px;
+  color: #c0392b;
+}
+#confirmar-modal p {
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.confirmar-botoes {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+#confirmar-sim {
+  padding: 8px 20px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #c0392b;
+  background: #c0392b;
+  color: #fff;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+#confirmar-sim:hover { background: #a93226; }
+
+#confirmar-nao {
+  padding: 8px 20px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  color: #333;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+#confirmar-nao:hover { background: #e0e0e0; }
+
+/* ---------- Atividades Obrigatórias ---------- */
+#atividades-container {
+  max-width: 900px;
+  margin: 0 auto 20px;
+  padding: 0 16px;
+  text-align: center;
+}
+#atividades-container h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.ativ-subtitulo {
+  font-size: 0.72rem;
+  color: #888;
+  margin-bottom: 14px;
+}
+#atividades-cards {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.atividade-card {
+  flex: 1;
+  min-width: 260px;
+  max-width: 400px;
+  padding: 16px 20px;
+  border: 2px solid #8e44ad;
+  border-radius: 8px;
+  background: #faf5ff;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+  transition: background 0.25s, transform 0.15s, box-shadow 0.25s;
+}
+.atividade-card:hover {
+  transform: scale(1.02);
+  background: #f0e6fa;
+}
+.atividade-card.concluida {
+  background: #b1fca4;
+  border-color: #27ae60;
+}
+.atividade-card.concluida:hover {
+  background: #77ef85;
+}
+.atividade-card .ativ-nome {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.atividade-card .ativ-ch {
+  display: block;
+  font-size: 0.78rem;
+  color: #666;
+  margin-bottom: 6px;
+}
+.atividade-card .ativ-desc {
+  display: block;
+  font-size: 0.68rem;
+  color: #999;
+  line-height: 1.4;
+}
+
+/* ---------- Footer ---------- */
+footer {
+  text-align: center;
+  padding: 16px;
+  font-size: 0.72rem;
+  color: #999;
+}
+
+/* ---------- Responsiveness ---------- */
+@media (max-width: 1000px) {
+  #grade-container {
+    flex-wrap: nowrap;
+  }
+  .periodo-coluna {
+    min-width: 130px;
+  }
+}
+@media (max-width: 600px) {
+  #info-container { flex-direction: column; gap: 10px; }
+  #header h1 { font-size: 1.1rem; }
+}
+
+/* ---------- Print ---------- */
+@media print {
+  #header, #controles, #legenda, footer { display: none; }
+  #grade-container { display: flex; flex-wrap: nowrap; gap: 4px; }
+  .disciplina { font-size: 7pt; padding: 4px; }
+}
