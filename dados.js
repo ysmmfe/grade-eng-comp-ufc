@@ -90,13 +90,8 @@ var atividades = [
   { id: "ATIV_COMP", nome: "Atividades Complementares",   ch: 136, descricao: "Pesquisa, ensino, extensão, eventos, produção científica, vivências de gestão" }
 ];
 
-// Número de slots de optativa por semestre (total = 512h / 64h = 8 slots)
-var slotsOptativas = [
-  { periodo: 7, quantidade: 2 },
-  { periodo: 8, quantidade: 2 },
-  { periodo: 9, quantidade: 2 },
-  { periodo: 10, quantidade: 2 }
-];
+var MAX_SEMESTRES = 15;       // PPC: prazo máximo de integralização
+var MIN_CH_OPTATIVAS = 512;   // PPC: mínimo de CH em optativas
 
 // ==========================
 // Disciplinas Optativas

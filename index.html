@@ -21,16 +21,21 @@
         <span class="info-valor" id="ch-concluida">0 h</span>
       </div>
       <div class="info-box">
-        <span class="info-label">CH Total Obrigatórias</span>
-        <span class="info-valor" id="ch-total">0 h</span>
+        <span class="info-label">CH p/ Integralização</span>
+        <span class="info-valor" id="ch-total">3600 h</span>
       </div>
       <div class="info-box">
         <span class="info-label">Progresso</span>
         <span class="info-valor" id="progresso">0 %</span>
       </div>
+      <div class="info-box">
+        <span class="info-label">Optativas</span>
+        <span class="info-valor" id="opt-info">0 / 512 h</span>
+      </div>
     </div>
     <div id="controles">
       <button id="btn-limpar" title="Limpar todo o progresso">Limpar Progresso</button>
+      <button id="btn-compartilhar" title="Copiar link da grade">🔗 Compartilhar</button>
     </div>
     <div id="legenda">
       <span class="leg-item"><span class="leg-cor leg-concluida"></span> Concluída</span>
@@ -38,6 +43,7 @@
       <span class="leg-item"><span class="leg-cor leg-dep"></span> Dependente</span>
       <span class="leg-item"><span class="leg-cor leg-liberada"></span> Liberada</span>
       <span class="leg-item"><span class="leg-cor leg-optativa"></span> Optativa</span>
+      <span class="leg-item"><span class="leg-cor leg-aviso"></span> Aviso prereq</span>
     </div>
   </header>
 
@@ -50,6 +56,9 @@
     <p class="ativ-subtitulo">Cumpridas ao longo do curso, sem semestre fixo</p>
     <div id="atividades-cards"></div>
   </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
 
   <!-- Modal de seleção de optativa -->
   <div id="modal-overlay" class="hidden">

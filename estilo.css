@@ -1,5 +1,6 @@
 /* ===========================================================
    Grade Interativa — Eng. de Computação UFC
+   v2: optativas livres, semestres dinâmicos, mover, compartilhar
    =========================================================== */
 
 /* ---------- Reset & Base ---------- */
@@ -32,13 +33,14 @@ html, body {
 #info-container {
   display: flex;
   justify-content: center;
-  gap: 32px;
+  gap: 24px;
   margin: 16px auto 10px;
   padding: 12px 20px;
-  max-width: 600px;
+  max-width: 720px;
   background: #fff;
   border-radius: 10px;
   border: 1px solid #ddd;
+  flex-wrap: wrap;
 }
 .info-box { text-align: center; }
 .info-label {
@@ -55,9 +57,18 @@ html, body {
   color: #2a6b2a;
   margin-top: 2px;
 }
+#opt-info {
+  color: #e67e22;
+}
+#opt-info.opt-atingida {
+  color: #2a6b2a;
+}
 
 #controles {
   margin: 10px 0 6px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
 }
 #btn-limpar {
   padding: 6px 16px;
@@ -72,6 +83,21 @@ html, body {
 }
 #btn-limpar:hover {
   background: #c0392b;
+  color: #fff;
+}
+#btn-compartilhar {
+  padding: 6px 16px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid #3498db;
+  background: #fff;
+  color: #3498db;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+#btn-compartilhar:hover {
+  background: #3498db;
   color: #fff;
 }
 
@@ -98,14 +124,16 @@ html, body {
 .leg-dep        { background: #ddffdd; border-color: #27ae60; }
 .leg-liberada   { background: #e7f3ff; border-color: #3498db; }
 .leg-optativa   { background: #fff3e0; border-color: #e67e22; }
+.leg-aviso      { background: #fff8e1; border-color: #f39c12; }
 
 /* ---------- Grid de Semestres ---------- */
 #grade-container {
   display: flex;
   gap: 6px;
-  padding: 16px 10px 40px;
+  padding: 16px 10px 20px;
   overflow-x: auto;
-  min-height: calc(100vh - 260px);
+  min-height: calc(100vh - 300px);
+  align-items: flex-start;
 }
 
 .periodo-coluna {
@@ -127,10 +155,36 @@ html, body {
   cursor: default;
   transition: background 0.3s;
   user-select: none;
+  position: relative;
+}
+.periodo-ch {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: #888;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-top: 1px;
 }
 .periodo-header.completo {
   background: #fcfab0;
 }
+
+/* Botão ✕ remover período extra */
+.btn-remover-periodo {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  background: none;
+  border: none;
+  font-size: 0.65rem;
+  color: #c0392b;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
+  padding: 2px;
+}
+.btn-remover-periodo:hover { color: #e74c3c; }
 
 /* ---------- Cards de Disciplina ---------- */
 .disciplina {
@@ -163,6 +217,53 @@ html, body {
   font-weight: 400;
 }
 
+/* Badge de período sugerido */
+.badge-sugerido {
+  display: inline;
+  font-size: 0.6rem;
+  color: #8e44ad;
+  font-weight: 400;
+  margin-left: 3px;
+}
+
+/* Botão mover ⇄ */
+.btn-mover {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  font-size: 0.6rem;
+  color: #888;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 1px 3px;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+}
+.disciplina:hover .btn-mover { opacity: 1; }
+.btn-mover:hover { color: #3498db; background: rgba(52,152,219,0.1); }
+
+/* Botão remover optativa ✕ */
+.btn-remover-opt {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  font-size: 0.6rem;
+  color: #c0392b;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 1px 3px;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.disciplina:hover .btn-remover-opt { opacity: 1; }
+.btn-remover-opt:hover { background: rgba(192,57,43,0.1); }
+
 /* --- Estados visuais --- */
 
 /* Concluída */
@@ -186,6 +287,13 @@ html, body {
   border-color: #3498db;
   border-width: 2px;
   background: #e7f3ff;
+}
+
+/* Aviso de prereq fora de ordem */
+.disciplina.aviso-prereq {
+  border-color: #f39c12 !important;
+  border-width: 2px;
+  background: #fff8e1;
 }
 
 /* Highlight de pré-requisito ao hover */
@@ -219,24 +327,108 @@ html, body {
   background: #b1fca4;
 }
 .disciplina.optativa-slot .disc-nome {
-  font-style: italic;
-}
-.disciplina.optativa-slot.preenchida .disc-nome {
   font-style: normal;
 }
-.optativa-trocar {
-  position: absolute;
-  top: 3px;
-  right: 5px;
-  font-size: 0.6rem;
+
+/* --- Botão + Optativa em cada semestre --- */
+.btn-add-opt {
+  text-align: center;
+  padding: 6px 4px;
+  margin-top: 4px;
+  font-size: 0.7rem;
   color: #e67e22;
+  border: 1px dashed #e67e22;
+  border-radius: 5px;
   cursor: pointer;
-  background: none;
-  border: none;
-  font-family: inherit;
-  padding: 0;
+  user-select: none;
+  transition: background 0.2s, color 0.2s;
+  background: transparent;
 }
-.optativa-trocar:hover { color: #c0392b; }
+.btn-add-opt:hover {
+  background: #fff3e0;
+  color: #d35400;
+}
+
+/* --- Botão + Período --- */
+.btn-add-periodo {
+  min-width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 10px;
+  border: 2px dashed #3498db;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #3498db;
+  font-size: 1.5rem;
+  transition: background 0.2s, color 0.2s;
+  user-select: none;
+  align-self: stretch;
+}
+.btn-add-periodo:hover {
+  background: #e7f3ff;
+  color: #2980b9;
+}
+.btn-add-label {
+  font-size: 0.68rem;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* ---------- Seletor de Período (mini-dropdown) ---------- */
+.seletor-periodo {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translate(-50%, 100%);
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  z-index: 500;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  max-width: 200px;
+  justify-content: center;
+}
+.seletor-periodo button {
+  width: 28px;
+  height: 26px;
+  font-size: 0.68rem;
+  font-family: inherit;
+  font-weight: 600;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f9f9f9;
+  cursor: pointer;
+  transition: background 0.15s;
+  color: #333;
+}
+.seletor-periodo button:hover {
+  background: #e7f3ff;
+  border-color: #3498db;
+}
+.seletor-periodo button.sel-atual {
+  background: #3498db;
+  color: #fff;
+  border-color: #3498db;
+}
+.seletor-periodo button.sel-aviso {
+  background: #fff8e1;
+  border-color: #f39c12;
+  color: #e67e22;
+}
+.seletor-periodo button.sel-reset {
+  background: #f0e6fa;
+  border-color: #8e44ad;
+  color: #8e44ad;
+}
+.seletor-periodo button.sel-reset:hover {
+  background: #e0d0f0;
+}
 
 /* ---------- Modal de Optativa ---------- */
 #modal-overlay {
@@ -380,6 +572,28 @@ html, body {
 }
 #confirmar-nao:hover { background: #e0e0e0; }
 
+/* ---------- Toast ---------- */
+#toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #333;
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  opacity: 0;
+  transition: transform 0.3s, opacity 0.3s;
+  z-index: 2000;
+  pointer-events: none;
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ---------- Atividades Obrigatórias ---------- */
 #atividades-container {
   max-width: 900px;
@@ -470,7 +684,7 @@ footer {
 
 /* ---------- Print ---------- */
 @media print {
-  #header, #controles, #legenda, footer { display: none; }
+  #header, #controles, #legenda, footer, .btn-add-opt, .btn-add-periodo, .btn-mover, .btn-remover-opt { display: none; }
   #grade-container { display: flex; flex-wrap: nowrap; gap: 4px; }
   .disciplina { font-size: 7pt; padding: 4px; }
 }
