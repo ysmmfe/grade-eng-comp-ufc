@@ -150,6 +150,67 @@
     return total;
   }
 
+  // ------- Drag and Drop -------
+  var dragData = null; // { tipo: 'obr'|'opt', id: '...', optIdx: N }
+
+  function onDragStart(e, tipo, id, optIdx) {
+    dragData = { tipo: tipo, id: id, optIdx: optIdx };
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+    e.target.classList.add('dragging');
+    // Highlight all drop zones
+    setTimeout(function () {
+      document.querySelectorAll('.periodo-coluna').forEach(function (col) {
+        col.classList.add('drop-zone');
+      });
+    }, 0);
+  }
+
+  function onDragEnd(e) {
+    e.target.classList.remove('dragging');
+    dragData = null;
+    document.querySelectorAll('.periodo-coluna').forEach(function (col) {
+      col.classList.remove('drop-zone', 'drop-hover');
+    });
+  }
+
+  function setupDropZone(coluna, sem) {
+    coluna.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      coluna.classList.add('drop-hover');
+    });
+    coluna.addEventListener('dragleave', function (e) {
+      if (!coluna.contains(e.relatedTarget)) {
+        coluna.classList.remove('drop-hover');
+      }
+    });
+    coluna.addEventListener('drop', function (e) {
+      e.preventDefault();
+      coluna.classList.remove('drop-hover');
+      if (!dragData) return;
+
+      if (dragData.tipo === 'obr') {
+        var disc = mapDisc[dragData.id];
+        if (disc) {
+          if (sem === disc.periodo) {
+            delete estado.posicoesCustom[disc.id];
+          } else {
+            estado.posicoesCustom[disc.id] = sem;
+          }
+        }
+      } else if (dragData.tipo === 'opt') {
+        var idx = dragData.optIdx;
+        if (idx !== undefined && estado.optativasAlocadas[idx]) {
+          estado.optativasAlocadas[idx].periodo = sem;
+        }
+      }
+      dragData = null;
+      salvar();
+      renderGrade();
+    });
+  }
+
   // ============================================================
   // RENDERIZAÇÃO
   // ============================================================
@@ -180,6 +241,9 @@
     var coluna = document.createElement("div");
     coluna.className = "periodo-coluna";
     coluna.dataset.periodo = sem;
+
+    // Setup drag-and-drop zone
+    setupDropZone(coluna, sem);
 
     // Header
     var header = document.createElement("div");
@@ -239,6 +303,7 @@
     card.id = "card-" + disc.id;
     card.dataset.id = disc.id;
     card.dataset.tipo = "obr";
+    card.draggable = true;
 
     var foiMovida = estado.posicoesCustom[disc.id] !== undefined;
     var badgeHTML = foiMovida
@@ -249,6 +314,12 @@
       '<span class="disc-nome">' + disc.nome + '</span>' +
       '<span class="disc-ch">' + disc.ch + 'h ' + badgeHTML + '</span>' +
       '<button class="btn-mover" title="Mover para outro período">⇄</button>';
+
+    // Drag and drop
+    card.addEventListener("dragstart", function (e) {
+      onDragStart(e, 'obr', disc.id);
+    });
+    card.addEventListener("dragend", onDragEnd);
 
     card.querySelector(".btn-mover").addEventListener("click", function (e) {
       e.stopPropagation();
@@ -276,12 +347,19 @@
     card.id = "card-opt-" + idx;
     card.dataset.id = alocacao.optId;
     card.dataset.tipo = "opt";
+    card.draggable = true;
 
     card.innerHTML =
       '<span class="disc-nome">' + opt.nome + '</span>' +
       '<span class="disc-ch">' + opt.ch + 'h</span>' +
       '<button class="btn-remover-opt" title="Remover optativa">✕</button>' +
       '<button class="btn-mover" title="Mover para outro período">⇄</button>';
+
+    // Drag and drop
+    card.addEventListener("dragstart", function (e) {
+      onDragStart(e, 'opt', alocacao.optId, idx);
+    });
+    card.addEventListener("dragend", onDragEnd);
 
     card.querySelector(".btn-remover-opt").addEventListener("click", function (e) {
       e.stopPropagation();

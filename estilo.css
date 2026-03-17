@@ -194,13 +194,30 @@ html, body {
   margin-bottom: 6px;
   border: 1px solid #333;
   border-radius: 5px;
-  cursor: pointer;
+  cursor: grab;
   user-select: none;
   transition: background 0.25s, border-color 0.25s, transform 0.15s, box-shadow 0.25s;
   background: #fff;
 }
+.disciplina:active { cursor: grabbing; }
 .disciplina:hover {
   transform: scale(1.03);
+}
+
+/* --- Drag and Drop --- */
+.disciplina.dragging {
+  opacity: 0.4;
+  transform: scale(0.95);
+}
+.periodo-coluna.drop-zone {
+  border: 2px dashed #3498db;
+  border-radius: 8px;
+  background: rgba(52, 152, 219, 0.03);
+  transition: background 0.2s, border-color 0.2s;
+}
+.periodo-coluna.drop-hover {
+  border-color: #27ae60 !important;
+  background: rgba(39, 174, 96, 0.08) !important;
 }
 
 .disc-nome {
